@@ -1,0 +1,37 @@
+services:
+  gaf-dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: gaf-retail-forecasting:latest
+    container_name: gaf-dev
+
+    # Acceso a GPU
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+
+    # Volúmenes: tu código y datos se montan en vivo
+    volumes:
+      - ..:/app
+      - ../data/raw:/app/data/raw
+
+    # Variables de entorno
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - TF_CPP_MIN_LOG_LEVEL=2
+
+    # Puerto para Jupyter
+    ports:
+      - "8888:8888"
+
+    # Mantener vivo para comandos interactivos
+    stdin_open: true
+    tty: true
+
+    working_dir: /app
